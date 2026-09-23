@@ -108,11 +108,11 @@ Pushes to `main`, pull requests and manual **Run workflow** runs validate, compi
 
 ```sh
 # After updating VERSION, committing and verifying the build:
-git tag v0.1.0-beta.2
-git push origin v0.1.0-beta.2
+git tag v0.1.0-beta.3
+git push origin v0.1.0-beta.3
 ```
 
-While the repository is private, everything remains accessible only to collaborators and the Pages deployment is skipped. Once the repository is public and Pages is configured for GitHub Actions, each stable version tag (without a prerelease suffix) publishes its release first, then deploys the English/Czech installer, manifest and firmware to the stable HTTPS address. Beta tags remain private testing artifacts and never replace the public installer. The workflow never changes repository visibility. Loading ESP Web Tools from its CDN requires internet access.
+While the repository is private, everything remains accessible only to collaborators and the Pages deployment is skipped. Once the repository is public and Pages is configured for GitHub Actions, each version tag publishes its release first, then deploys the English/Czech installer, manifest and firmware to the stable HTTPS address. A beta tag can therefore drive end-to-end testing of the public installer; the next stable tag replaces it for general use. The workflow never changes repository visibility. Loading ESP Web Tools from its CDN requires internet access.
 
 ## Test firmware security
 

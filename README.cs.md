@@ -107,11 +107,11 @@ Push na `main`, pull request nebo ruční **Run workflow** provede kontrolu, kom
 
 ```sh
 # Po úpravě VERSION, commitu a úspěšném buildu:
-git tag v0.1.0-beta.2
-git push origin v0.1.0-beta.2
+git tag v0.1.0-beta.3
+git push origin v0.1.0-beta.3
 ```
 
-Dokud je repozitář soukromý, vše zůstává dostupné jen spolupracovníkům a nasazení Pages se přeskočí. Po zveřejnění repozitáře a nastavení Pages na GitHub Actions každý stabilní verzovací tag (bez prerelease suffixu) nejprve vytvoří release a potom nasadí anglický/český instalátor, manifest a firmware na stabilní HTTPS adresu. Beta tagy zůstávají testovacími artefakty a veřejný instalátor nepřepisují. Workflow nikdy nemění viditelnost repozitáře. Načtení ESP Web Tools z CDN vyžaduje internet.
+Dokud je repozitář soukromý, vše zůstává dostupné jen spolupracovníkům a nasazení Pages se přeskočí. Po zveřejnění repozitáře a nastavení Pages na GitHub Actions každý verzovací tag nejprve vytvoří release a potom nasadí anglický/český instalátor, manifest a firmware na stabilní HTTPS adresu. Beta tag tak umožňuje otestovat veřejný instalátor od začátku do konce; další stabilní tag ho později nahradí pro běžné použití. Workflow nikdy nemění viditelnost repozitáře. Načtení ESP Web Tools z CDN vyžaduje internet.
 
 ## Zabezpečení testovacího firmware
 

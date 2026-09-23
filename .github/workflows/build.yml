@@ -46,7 +46,7 @@ jobs:
           if-no-files-found: error
           retention-days: 30
       - name: Prepare public installer for GitHub Pages
-        if: github.event.repository.visibility == 'public' && startsWith(github.ref, 'refs/tags/v') && !contains(github.ref_name, '-')
+        if: github.event.repository.visibility == 'public' && startsWith(github.ref, 'refs/tags/v')
         uses: actions/upload-pages-artifact@v5
         with:
           path: dist/installer
@@ -74,7 +74,7 @@ jobs:
             if [[ "$TAG" == *-* ]]; then
               gh release create "$TAG" artifacts/*.zip --verify-tag --prerelease \
                 --title "HA Wind Sensor $TAG" \
-                --notes "Test firmware for XIAO ESP32-S3. English is the default language; Czech is available as an alternative. Physical hardware testing is still required."
+                --notes "Public test firmware for XIAO ESP32-S3. English is the default language; Czech is available as an alternative."
             else
               gh release create "$TAG" artifacts/*.zip --verify-tag --latest \
                 --title "HA Wind Sensor $TAG" \
@@ -83,7 +83,7 @@ jobs:
           fi
 
   pages:
-    if: github.event.repository.visibility == 'public' && startsWith(github.ref, 'refs/tags/v') && !contains(github.ref_name, '-')
+    if: github.event.repository.visibility == 'public' && startsWith(github.ref, 'refs/tags/v')
     needs: [build, release]
     runs-on: ubuntu-24.04
     permissions:
