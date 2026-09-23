@@ -1,4 +1,4 @@
-# Home test — 0.1.0-beta.3
+# Home test — 0.1.0-beta.4
 
 **English** · [Čeština](test-checklist.cs.md)
 

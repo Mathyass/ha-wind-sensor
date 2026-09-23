@@ -1,4 +1,4 @@
-# Domácí test — 0.1.0-beta.3
+# Domácí test — 0.1.0-beta.4
 
 [English](test-checklist.md) · **Čeština**
 
