@@ -28,8 +28,8 @@ def package():
     if metadata.get("esphome_version") != "2026.9.0":
         raise RuntimeError("Rebuild with requirements.txt before packaging")
     # Project version appears in generated C++, so a stale build is caught early.
-    source = (build / "src/main.cpp").read_text()
-    if f'"{version}"' not in source or 'mathyass.ha-wind-sensor' not in source:
+    source = (build / "src/esphome/core/defines.h").read_text()
+    if f'#define ESPHOME_PROJECT_VERSION "{version}"' not in source or '#define ESPHOME_PROJECT_NAME "mathyass.ha-wind-sensor"' not in source:
         raise RuntimeError("Build version does not match VERSION; run scripts/build.py")
     dist = ROOT / "dist"
     site = dist / "installer"
