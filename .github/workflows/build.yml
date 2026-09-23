@@ -68,5 +68,5 @@ jobs:
           else
             gh release create "$TAG" artifacts/*.zip --verify-tag --prerelease \
               --title "HA Wind Sensor $TAG" \
-              --notes "Testovací firmware pro XIAO ESP32-S3. Stáhněte instalační ZIP, rozbalte jej a spusťte python3 serve.py. Postup a checklist jsou uvnitř balíčku. USB flashování, Wi-Fi provisioning a OTA je nutné ověřit na skutečném zařízení."
+              --notes "Test firmware for XIAO ESP32-S3. Download and extract the installer ZIP, then run python3 serve.py. English is the default language; Czech is available as an alternative. Instructions and the test checklist are included. USB flashing, Wi-Fi provisioning and OTA still require testing on physical hardware."
           fi

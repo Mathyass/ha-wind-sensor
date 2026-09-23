@@ -36,7 +36,7 @@ def package():
     if site.exists():
         shutil.rmtree(site)
     site.mkdir(parents=True)
-    for filename in ("index.html", "installer.js", "serve.py", "manifest.json"):
+    for filename in ("index.html", "index.cs.html", "installer.js", "serve.py", "manifest.json"):
         shutil.copy2(ROOT / "installer" / filename, site / filename)
     (site / "firmware").mkdir()
     for kind, source_path in binaries.items():
@@ -45,6 +45,7 @@ def package():
     manifest["version"] = version
     (site / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")
     shutil.copy2(ROOT / "README.md", site / "README.md")
+    shutil.copy2(ROOT / "README.cs.md", site / "README.cs.md")
     shutil.copytree(ROOT / "docs", site / "docs")
     commit = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip()
     (site / "build-info.json").write_text(json.dumps({

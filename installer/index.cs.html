@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="cs">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>HA Wind Sensor · Instalace</title>
+  <style>
+    :root {font-family: system-ui, sans-serif; color: #18332f; background: #f1f5f0; line-height: 1.6}
+    * {box-sizing: border-box} body {margin: 0} main {max-width: 840px; margin: auto; padding: 48px 22px}
+    .badge {font-size: .8rem; letter-spacing: .12em; text-transform: uppercase; color: #406356}
+    h1 {font-size: clamp(2.4rem, 7vw, 4rem); line-height: 1.1; margin: 18px 0}
+    h2 {font-size: 1.25rem; margin-top: 0} .intro {font-size: 1.15rem; max-width: 650px}
+    section {background: white; border: 1px solid #dbe5db; border-radius: 18px; padding: 26px; margin: 20px 0}
+    .wiring {display: flex; gap: 14px; flex-wrap: wrap} .wire {background: #edf4ef; border-radius: 10px; padding: 14px 20px}
+    button {background: #176c53; color: white; border: 0; border-radius: 9px; padding: 14px 22px; font: inherit; font-weight: 650; cursor: pointer}
+    button:focus-visible, a:focus-visible {outline: 3px solid #b5791c; outline-offset: 4px}
+    a {color: #176c53} code {background: #eef2ee; padding: 2px 5px; border-radius: 4px}
+    .muted, footer {color: #536b61; font-size: .9rem} .notice {border-left: 4px solid #b5791c; padding-left: 14px}
+    [hidden] {display: none !important} li {margin: 9px 0} footer {margin-top: 32px}
+  </style>
+</head>
+<body>
+<main>
+  <nav aria-label="Jazyk"><a href="index.html" lang="en" hreflang="en">English</a> · <strong>Čeština</strong></nav>
+  <div class="badge">DIY · Home Assistant · Soukromý test</div>
+  <h1>Vítr na očích.</h1>
+  <p class="intro">Připoj senzor, nahraj firmware a přidej do Home Assistantu měření rychlosti větru v km/h.</p>
+  <section>
+    <h2>1. Zapoj senzor</h2>
+    <p>Seeed Studio XIAO ESP32-S3 + LaskaKit WH-SP-WS01. Zapoj při odpojeném napájení.</p>
+    <div class="wiring"><div class="wire">Reed kontakt → <strong>D3 / GPIO4</strong></div><div class="wire">Druhý vodič → <strong>GND</strong></div></div>
+    <p class="muted">Kontakt nemá polaritu. D3 není D4. Připoj také externí Wi-Fi anténu a datový USB-C kabel.</p>
+  </section>
+  <section>
+    <h2>2. Nainstaluj a nastav Wi-Fi</h2>
+    <p>Použij Chrome nebo Edge na počítači. Zavři jiné sériové monitory. Vyber USB zařízení a v průvodci nainstaluj firmware. Potom nastav svou 2,4GHz Wi-Fi.</p>
+    <p class="notice">Instalace nahradí dosavadní firmware. Pro čistý první test zaškrtni vymazání zařízení; smaže i uloženou Wi-Fi.</p>
+    <p id="status" role="status" aria-live="polite">Ověřuji instalační balíček…</p>
+    <esp-web-install-button id="install" manifest="manifest.json" hidden>
+      <button slot="activate">Připojit a nainstalovat</button>
+      <span slot="unsupported">Tento prohlížeč nepodporuje Web Serial. Otevři stránku v Chrome nebo Edge na počítači.</span>
+      <span slot="not-allowed">Instalátor potřebuje HTTPS nebo localhost.</span>
+    </esp-web-install-button>
+    <noscript>Pro instalaci povol JavaScript.</noscript>
+    <p class="muted">Když se po nahrání zařízení neozve, odpoj a připoj USB a znovu otevři připojení. Wi-Fi nastavíš i bez dalšího flashování.</p>
+  </section>
+  <section>
+    <h2>3. Přidej do Home Assistantu</h2>
+    <p>V <strong>Nastavení → Zařízení a služby</strong> potvrď objevené zařízení ESPHome. Uvidíš hlavní entitu <strong>Wind Speed</strong> v <strong>km/h</strong>.</p>
+    <p>Pokud se nenajde automaticky, přidej integraci ESPHome ručně pomocí IP adresy senzoru, port <code>6053</code>. Počítač, senzor a Home Assistant musí mít vzájemný síťový přístup.</p>
+    <a href="https://my.home-assistant.io/redirect/config_flow_start/?domain=esphome" target="_blank" rel="noopener noreferrer">Otevřít přidání ESPHome</a>
+  </section>
+  <section>
+    <h2>Když připojení nevyjde</h2>
+    <ul>
+      <li><strong>USB není v seznamu:</strong> zkus jiný datový kabel. Podrž BOOT, krátce stiskni RESET a uvolni BOOT. Po flashování případně stiskni RESET.</li>
+      <li><strong>Wi-Fi se nepřipojí:</strong> zkontroluj anténu a 2,4GHz síť. Po přibližně minutě se objeví otevřená síť zařízení s názvem HA Wind Sensor a unikátním suffixem. Připoj se a otevři <a href="http://192.168.4.1">192.168.4.1</a>.</li>
+      <li><strong>Měření:</strong> roztoč anemometr. Po zastavení klesne rychlost přibližně do 5 sekund na nulu.</li>
+    </ul>
+    <p class="muted">Testovací firmware má otevřený fallback AP, API bez šifrování a OTA bez hesla. Používej ho v důvěryhodné síti. Postup vlastního zabezpečení je v README.</p>
+  </section>
+  <footer>HA Wind Sensor · <span id="version">testovací firmware</span> · Wi-Fi údaje zadáváš přímo zařízení přes Improv nebo jeho captive portal. Webová knihovna se načítá z unpkg.com; připojení k internetu je potřeba.</footer>
+</main>
+<script type="module" src="installer.js"></script>
+</body>
+</html>

@@ -1,85 +1,88 @@
 # HA Wind Sensor
 
-Soukromý prototyp pro **Seeed Studio XIAO ESP32-S3 + LaskaKit WH-SP-WS01**.
-Výsledkem je jedna měřicí entita **Wind Speed** v **km/h** v Home Assistantu.
-Bez automatizací nebo logiky žaluzií. Verze projektu je v `VERSION`.
+**English** · [Čeština](README.cs.md)
 
-Firmware: ESPHome **2026.9.0**, ESP-IDF. Instalátor: ESP Web Tools **10.4.0**.
-Automatické kontroly nejsou potvrzením funkce na fyzickém zařízení; domácí ověření popisuje [testovací checklist](docs/test-checklist.md).
+A private DIY prototype for **Seeed Studio XIAO ESP32-S3 + LaskaKit WH-SP-WS01**.
+It provides one measurement entity, **Wind Speed**, in **km/h** in Home Assistant.
+There are no blind controls or other automations. The project version is in `VERSION`.
 
-## Co potřebuješ
+Firmware: ESPHome **2026.9.0**, ESP-IDF. Installer: ESP Web Tools **10.4.0**.
+Automated validation and compilation do not replace physical testing; use the [test checklist](docs/test-checklist.md).
+The installer opens in English, with a Czech language link at the top. ESP Web Tools’ own dialogs use the library’s supported language behavior.
 
-- XIAO ESP32-S3 s připojenou externí Wi-Fi anténou (8 MB flash).
-- WH-SP-WS01 s reed kontaktem, dva vodiče, datový USB-C kabel a USB napájení.
-- Počítač s Chrome/Edge, Pythonem 3 a internetem pro načtení knihovny instalátoru.
-- 2,4GHz Wi-Fi a Home Assistant se síťovým přístupem k zařízení.
+## What you need
 
-Zapoj při odpojeném napájení:
+- XIAO ESP32-S3 with its external Wi-Fi antenna attached (8 MB flash).
+- WH-SP-WS01 reed-contact anemometer, two wires, a USB-C data cable and USB power.
+- A computer with Chrome/Edge, Python 3 and internet access to load the installer library.
+- A 2.4 GHz Wi-Fi network and Home Assistant with network access to the sensor.
+
+Disconnect power before wiring:
 
 | WH-SP-WS01 | XIAO ESP32-S3 |
 | --- | --- |
-| Jeden vodič reed kontaktu | **D3 = GPIO4** |
-| Druhý vodič | **GND** |
+| One reed-contact wire | **D3 = GPIO4** |
+| Other wire | **GND** |
 
-Kontakt nemá polaritu a nepotřebuje napájení. Firmware zapíná interní pull-up.
-**D4 není GPIO4.** Deska používá 3,3V logiku. 3D model držáku a montážní dokumentace budou doplněny samostatně.
+The contact has no polarity and needs no supply voltage. The firmware enables the internal pull-up.
+**D4 is not GPIO4.** The board uses 3.3 V logic. The printed bracket and assembly guide will be added separately.
 
-## Nejrychlejší domácí instalace
+## Quick start: private home test
 
-1. Po přihlášení na GitHub otevři [Releases](https://github.com/Mathyass/ha-wind-sensor/releases) a stáhni `ha-wind-sensor-<verze>-installer.zip`. Alternativně v [Actions](https://github.com/Mathyass/ha-wind-sensor/actions) otevři úspěšný build a stáhni artifact `ha-wind-sensor-installer`; v něm rozbal ještě vlastní instalační ZIP.
-2. Rozbal celý instalační ZIP. Otevři terminál v rozbalené složce a spusť:
+1. Sign in to GitHub, open [Releases](https://github.com/Mathyass/ha-wind-sensor/releases) and download `ha-wind-sensor-<version>-installer.zip`. Alternatively, open a successful [Actions](https://github.com/Mathyass/ha-wind-sensor/actions) run and download the `ha-wind-sensor-installer` artifact. Extract the artifact, then extract the installer ZIP inside it.
+2. Extract the **entire** installer ZIP. Open a terminal in that folder and run:
 
    ```sh
    python3 serve.py
    ```
 
-   Ve Windows lze použít `py serve.py`. Otevře se `http://localhost:8000`; v případě potřeby adresu otevři ručně v Chrome/Edge. Server je dostupný jen na tomto počítači, ukončíš ho Ctrl+C. Pokud je port obsazený, alternativně spusť `python3 -m http.server 8001 --bind 127.0.0.1` ve stejné složce a otevři `http://localhost:8001`.
+   On Windows, use `py serve.py` if needed. This opens `http://localhost:8000`; open that address manually in Chrome/Edge if necessary. The server is only available on this computer. Stop it with Ctrl+C. If port 8000 is busy, run `python3 -m http.server 8001 --bind 127.0.0.1` in the same folder and open `http://localhost:8001` instead.
 
-3. Připoj XIAO datovým USB-C kabelem, zavři sériové monitory a klikni **Připojit a nainstalovat**. Vyber odpovídající USB port. První čistý test proveď s vymazáním zařízení: odstraní dosavadní firmware i uloženou Wi-Fi.
-4. Po flashování průvodce přes **Improv Serial** nabídne nastavení Wi-Fi. Zadej údaje 2,4GHz sítě. Pokud port po restartu zmizí, odpoj/připoj USB a připoj se znovu; firmware nemusíš znovu nahrávat.
-5. V Home Assistantu otevři **Nastavení → Zařízení a služby** a potvrď objevené ESPHome zařízení. Pokud discovery nefunguje, přidej integraci ESPHome ručně: IP zařízení a port `6053`. IP zjistíš například v routeru. Objeví se **Wind Speed**, obvykle s ID podobným `sensor.ha_wind_sensor_a1b2c3_wind_speed`; přesné ID určuje HA.
-6. Roztoč anemometr a po zastavení ověř návrat k nule. Pokračuj checklistem.
+3. Connect the XIAO with a USB-C **data** cable, close other serial monitors and click **Connect and install**. Select its USB port. For the first clean test, select the erase option: this replaces the old firmware and removes saved Wi-Fi credentials.
+4. After flashing, **Improv Serial** offers Wi-Fi setup. Enter your 2.4 GHz network credentials. If the port disappears during restart, unplug/reconnect USB and connect again; you do not need to flash again.
+5. In Home Assistant, open **Settings → Devices & services** and add the discovered ESPHome device. If discovery fails, add the ESPHome integration manually using the device IP address and port `6053`. Find the IP in your router if needed. The measurement is **Wind Speed**; its entity ID may resemble `sensor.ha_wind_sensor_a1b2c3_wind_speed`, but HA determines the exact ID.
+6. Spin the anemometer and check that the reading returns to zero after it stops. Continue with the checklist.
 
-Neotvírej instalátor dvojklikem jako `file://` a neservíruj ho z obyčejné LAN HTTP adresy. Web Serial potřebuje zabezpečený kontext; `localhost` funguje jako lokální výjimka, veřejné nasazení potřebuje HTTPS.
+Do not open the installer directly as `file://` or serve it over a plain LAN HTTP address. Web Serial requires a secure context: `localhost` is a local exception; public deployment requires HTTPS.
 
-## Fallback a obnova USB
+## Fallback Wi-Fi and USB recovery
 
-Při nepřipojené Wi-Fi se přibližně po minutě aktivuje otevřený fallback AP. ESPHome odvodí jeho název od zařízení (HA Wind Sensor a MAC suffix). Připoj se k němu, případně vypni automatický návrat telefonu k jiné síti, a otevři **http://192.168.4.1**. Nastav správné SSID/heslo. Údaje z Improv i captive portalu se ukládají v zařízení a přežijí restart.
+When Wi-Fi cannot connect, an open fallback access point starts after about one minute. ESPHome derives its name from the device (HA Wind Sensor and a MAC suffix). Join it, prevent your phone from automatically switching networks if necessary, and open **http://192.168.4.1**. Enter the correct SSID/password. Credentials provisioned through Improv or the captive portal are saved on the device and survive power cycles.
 
-Pokud zařízení nejde flashnout: podrž **BOOT**, krátce stiskni **RESET**, uvolni BOOT a znovu vyber sériový port. Po nahrání může být potřeba RESET. Zkontroluj také datový kabel a externí anténu.
+If flashing fails, hold **BOOT**, briefly press **RESET**, release BOOT and select the serial port again. You may need to press RESET after flashing. Also check the USB data cable and external antenna.
 
-## Měření a jeho limity
+## Measurement and limits
 
-`pulse_meter` měří intervaly mezi pulzy a vrací pulzy za minutu. Zadaná kalibrace je **1 Hz = 2,4 km/h**, tedy `60 × 0,04 = 2,4 km/h`. Používáme GPIO4, interní pull-up, `internal_filter: 5ms`, režim `EDGE`, `timeout: 5s` a jednu desetinnou číslici. Nezavádíme průměrování ani další senzory.
+`pulse_meter` measures the interval between pulses and reports pulses per minute. The specified calibration is **1 Hz = 2.4 km/h**, so `60 × 0.04 = 2.4 km/h`. The configuration uses GPIO4, an internal pull-up, `internal_filter: 5ms`, `EDGE` filtering, `timeout: 5s` and one decimal place. There is no averaging or additional measurement sensor.
 
-Pět sekund bez pulzu znamená nulu. Při intervalech nad 5 s (méně než přibližně 0,48 km/h podle zadané kalibrace) nemůže toto nastavení poskytovat souvislé nízké hodnoty. Timeout nerozliší bezvětří od přerušeného vodiče. Přesnost skutečného větru je nutné ověřit pro senzor a umístění; balkon může proudění významně ovlivnit.
+Five seconds without a pulse means zero. Intervals longer than 5 seconds (below approximately 0.48 km/h under this calibration) cannot produce a continuous low-speed reading with this timeout. Zero cannot distinguish still air from a disconnected wire. Real wind accuracy needs to be checked for the sensor and mounting location; balconies can significantly distort airflow.
 
-## OTA aktualizace
+## OTA updates
 
-OTA je dostupná přes ESPHome na portu **3232**. Pro update použij **`firmware/ha-wind-sensor.ota.bin`**, nikdy factory image. OTA nepřepisuje uloženou Wi-Fi a MAC identitu. Aktualizace nejsou automatické a tento projekt nepřidává další update entitu do HA.
+ESPHome OTA listens on port **3232**. Use **`firmware/ha-wind-sensor.ota.bin`** for updates, never the factory image. OTA preserves saved Wi-Fi and the MAC-based device identity. Updates are manual; this project does not add an update entity to HA.
 
-V lokálním klonu repozitáře připrav prostředí podle následující sekce. Pak nahraj `.ota.bin` z rozbaleného release ZIPu (nahraď IP i cestu skutečnými hodnotami):
+In a local clone, prepare the environment described below. Then upload the `.ota.bin` from the extracted release ZIP, replacing both the IP and path with your own:
 
 ```sh
-esphome upload esphome/wind-sensor.yaml --device 192.168.1.123 --file /cesta/k/firmware/ha-wind-sensor.ota.bin
+esphome upload esphome/wind-sensor.yaml --device 192.168.1.123 --file /path/to/firmware/ha-wind-sensor.ota.bin
 ```
 
-Pro vlastní nově sestavený firmware lze použít `esphome -s firmware_version "$(cat VERSION)" run esphome/wind-sensor.yaml --device 192.168.1.123`. Dokud je repo private, přístup k release vyžaduje přihlášení; zařízení samo firmware z GitHubu nestahuje.
+To build and upload a new version from source, use `esphome -s firmware_version "$(cat VERSION)" run esphome/wind-sensor.yaml --device 192.168.1.123`. Private release downloads require GitHub sign-in; the device does not fetch firmware from GitHub itself.
 
-## Lokální vývoj a struktura
+## Local development and layout
 
 ```text
-esphome/wind-sensor.yaml           vstup pro univerzální firmware
-esphome/packages/wind-sensor.yaml  znovupoužitelná konfigurace
-installer/                        web a šablona manifestu
-scripts/build.py                  validace, kompilace, balení
-scripts/package.py                factory + OTA + manifest + checksumy
-.github/workflows/build.yml        build na main/PR, release na v* tagu
-docs/test-checklist.md             domácí testy a podmínky zveřejnění
-VERSION                           verze použitá v buildu i manifestu
+esphome/wind-sensor.yaml           generic firmware entry point
+esphome/packages/wind-sensor.yaml  reusable device configuration
+installer/                        English/Czech web UI and manifest template
+scripts/build.py                  validation, compilation and packaging
+scripts/package.py                factory + OTA + manifest + checksums
+.github/workflows/build.yml        builds on main/PR; releases on v* tags
+docs/test-checklist.md             hardware tests and publication checklist
+VERSION                           version for firmware and manifest
 ```
 
-V klonu repozitáře (Python 3.13):
+From the repository clone, using Python 3.13:
 
 ```sh
 python3.13 -m venv .venv
@@ -89,27 +92,27 @@ python scripts/build.py
 python dist/installer/serve.py
 ```
 
-Na Windows aktivuj `.venv\Scripts\activate`; kompilátor ESP-IDF si při prvním sestavení stáhne potřebné nástroje. CI používá Ubuntu 24.04. `scripts/build.py` dodá verzi z `VERSION`; při přímém sestavení YAML bez této substituce se firmware označí jako `dev`.
+On Windows, activate `.venv\Scripts\activate`. ESP-IDF downloads the required toolchain on the first build. CI uses Ubuntu 24.04. `scripts/build.py` passes `VERSION` into ESPHome; compiling the YAML directly without that substitution labels the firmware `dev`.
 
-Výstup `dist/installer/` obsahuje připravený web, **factory image sloučenou ESPHome na offset 0**, OTA image, build metadata a SHA-256 kontrolní součty. Stejný obsah je v `dist/ha-wind-sensor-<verze>-installer.zip`. Binární soubory, secrets a lokální konfigurace se necommitují. Zdrojový `installer/manifest.json` je šablona; samotný zdrojový adresář ještě neobsahuje firmware. Web chybějící binární soubor pozná a instalaci nenabídne.
+`dist/installer/` contains the ready-to-use website, **ESPHome’s merged factory image at offset 0**, an OTA image, build metadata and SHA-256 checksums. The same content is packaged in `dist/ha-wind-sensor-<version>-installer.zip`. Binaries, secrets and local configurations are not committed. The source `installer/manifest.json` is a template; the source installer folder has no firmware yet. The page detects a missing binary and does not offer installation.
 
-## Soukromé buildy a release
+## Private builds and releases
 
-Push na `main`, pull request nebo ruční **Run workflow** provede kontrolu, kompilaci a vytvoří stažitelný artifact (uchování 30 dní). Tag **`v<obsah VERSION>`** navíc vytvoří GitHub **prerelease** a přiloží instalační ZIP. Neshodující se tag build odmítne.
+Pushes to `main`, pull requests and manual **Run workflow** runs validate, compile and upload an artifact, retained for 30 days. A tag named **`v<contents of VERSION>`** also creates a GitHub **prerelease** with the installer ZIP attached. A mismatched tag fails validation.
 
 ```sh
-# Po úpravě VERSION, commitu a úspěšném buildu:
+# After updating VERSION, committing and verifying the build:
 git tag v0.1.0-beta.1
 git push origin v0.1.0-beta.1
 ```
 
-Vše zůstává přístupné pouze lidem s přístupem k private repozitáři. Workflow neaktivuje GitHub Pages, neposílá firmware na veřejný hosting a nemění viditelnost repozitáře. Prohlížeč nepotřebuje GitHub token: firmware i manifest načítá z rozbaleného balíčku na localhost. Načtení knihovny ESP Web Tools z CDN vyžaduje internet.
+Everything remains accessible only to people with access to the private repository. The workflow does not enable GitHub Pages, upload firmware to public hosting or change repository visibility. No GitHub token is used in the browser: it loads the manifest and firmware from the extracted package on localhost. Loading ESP Web Tools from its CDN requires internet access.
 
-## Zabezpečení testovacího firmware
+## Test firmware security
 
-Univerzální image neobsahuje Wi-Fi credentials, GitHub token ani společný API klíč. Pro tento první test je **API bez šifrování, OTA bez hesla a fallback AP otevřený**. Používej důvěryhodnou síť; porty nepřesměrovávej do internetu. Captive portal v ESPHome také zpřístupňuje webové OTA při běhu fallback AP.
+The generic image contains no Wi-Fi credentials, GitHub token or shared API encryption key. In this initial test, **the API is unencrypted, OTA has no password and the fallback AP is open**. Use a trusted network and do not forward device ports to the internet. ESPHome’s captive portal also provides web OTA while the fallback AP is active.
 
-Pro zabezpečení konkrétního zařízení vytvoř ignorovaný `esphome/wind-sensor.local.yaml`, zkopíruj do něj obsah `wind-sensor.yaml` a doplň:
+To secure an individual device, create ignored `esphome/wind-sensor.local.yaml`, copy the contents of `wind-sensor.yaml` into it, then add:
 
 ```yaml
 api:
@@ -124,16 +127,16 @@ wifi:
     password: !secret fallback_password
 ```
 
-Hodnoty ulož do ignorovaného `esphome/secrets.yaml`. API klíč je base64 kódovaných 32 náhodných bytů; vygeneruješ ho `openssl rand -base64 32`. AP heslo musí mít 8–64 znaků. První zabezpečený build nahraj přes USB; potom v HA nastav nový API klíč a pro další OTA používej odpovídající lokální YAML. Návrat k univerzálnímu firmware tato zabezpečení odstraní. Lokální soubory nikdy nepřidávej do sdíleného buildu.
+Store the values in ignored `esphome/secrets.yaml`. The API key is 32 random bytes encoded as base64; generate it with `openssl rand -base64 32`. The AP password must be 8–64 characters. Install the first secured build over USB, then supply the API key to HA and use the matching local YAML for subsequent OTA updates. Returning to the generic image removes these protections. Never include local configurations or secrets in shared builds.
 
-Home Assistant discovery přes mDNS a přidání API zařízení fungují bez převzetí zdrojové konfigurace. `dashboard_import` pro ESPHome Device Builder zatím nezapínáme, protože anonymní import z private repozitáře by selhal. Pro vlastní změny používej lokální klon/package.
+HA discovery through mDNS and adding the API device work without adopting the source configuration. `dashboard_import` is intentionally omitted while the repository is private, because anonymous Device Builder imports would fail. Use the local clone/package for your own changes.
 
-## Zdroje a další fáze
+## References and next phase
 
 - [ESPHome pulse_meter](https://esphome.io/components/sensor/pulse_meter/)
-- [ESPHome Improv Serial](https://esphome.io/components/improv_serial/) a [USB logger](https://esphome.io/components/logger/)
-- [ESP Web Tools — manifest a instalátor](https://esphome.github.io/esp-web-tools/)
+- [ESPHome Improv Serial](https://esphome.io/components/improv_serial/) and [USB logger](https://esphome.io/components/logger/)
+- [ESP Web Tools: manifest and installer](https://esphome.github.io/esp-web-tools/)
 - [ESPHome OTA](https://esphome.io/components/ota/esphome/)
 - [Seeed XIAO ESP32-S3](https://wiki.seeedstudio.com/xiao_esp32s3_getting_started/)
 
-Zveřejnění, licence, veřejný HTTPS instalátor, 3D model, fotografie a MakerWorld stránka jsou až další fáze po domácích testech. Zatím není udělena veřejná open-source licence.
+Publication, licensing, public HTTPS hosting, the 3D model, photos and the MakerWorld page follow after home testing. No public open-source license has been granted yet.

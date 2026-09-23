@@ -1,31 +1,34 @@
-# Domácí test — 0.1.0-beta.1
+# Home test — 0.1.0-beta.1
 
-Zapiš datum, verzi/commit z `build-info.json`, verzi Home Assistantu, prohlížeč a výsledek.
-Automatický build ověřuje konfiguraci a kompilaci; následující kroky vyžadují fyzický hardware.
+**English** · [Čeština](test-checklist.cs.md)
 
-- [ ] Anténa je připojená, reed mezi **D3 / GPIO4 a GND**, USB kabel přenáší data.
-- [ ] Čistá instalace z ZIPu v Chrome/Edge: flash projde na XIAO ESP32-S3, bez restartovací smyčky.
-- [ ] Improv po restartu nabídne Wi-Fi; správné údaje připojí zařízení do 2,4GHz sítě.
-- [ ] Chybné heslo lze opravit; Wi-Fi zadaná přes Improv zůstane uložená po odpojení napájení.
-- [ ] Fallback: při nedostupné Wi-Fi počkat přibližně minutu, najít otevřený AP, otevřít `192.168.4.1`, zadat správné údaje a ověřit připojení i po restartu. Po připojení má fallback AP zmizet.
-- [ ] Home Assistant zařízení objeví přes ESPHome; alternativně funguje ruční přidání IP:6053.
-- [ ] Jedna měřicí entita **Wind Speed**, jednotka **km/h**, device class `wind_speed`, state class `measurement`; žádné ovládání žaluzií.
-- [ ] Plynulé roztočení ukazuje mezihodnoty, bez skoků pouze po 2,4 km/h. Po ustálení v klidu je 0.
-- [ ] Po posledním pulzu přibližně do 5 s přejde hodnota na 0, bez falešných špiček při stojícím senzoru.
-- [ ] Máš-li generátor impulzů s výstupem otevřený kolektor: 1 Hz → 2,4 km/h, 10 Hz → 24,0 km/h, 20 Hz → 48,0 km/h. Počkej na několik period. GPIO je 3,3 V; nepřivádět 5 V. Ruční otáčení není přesná kalibrační reference.
-- [ ] Výpadek routeru a jeho návrat: zařízení se připojí a měření se v HA obnoví.
-- [ ] OTA podle README s `.ota.bin` projde; Wi-Fi a identita entity zůstanou zachované. Ověřit následný restart a měření.
-- [ ] Dva senzory zároveň mají odlišné názvy/MAC suffixy a samostatné entity (pokud máš druhou desku).
-- [ ] Alespoň 24 hodin provozu bez samovolných restartů a falešných pulzů v klidu.
+Record the date, version/commit from `build-info.json`, Home Assistant version, browser and outcome.
+Automated builds check configuration and compilation. The steps below require physical hardware.
 
-## Před zveřejněním
+- [ ] External antenna attached; reed wired between **D3 / GPIO4 and GND**; USB cable supports data.
+- [ ] Clean install from the ZIP in desktop Chrome/Edge succeeds on the XIAO ESP32-S3, with no reboot loop.
+- [ ] The installer opens in English; the Czech link works and English can be selected again. Both use the same firmware.
+- [ ] Improv offers Wi-Fi setup after reboot; valid credentials connect to a 2.4 GHz network.
+- [ ] An incorrect password can be corrected; Improv credentials survive a power cycle.
+- [ ] Fallback: with Wi-Fi unavailable, wait about a minute, join the open AP, visit `192.168.4.1`, enter valid credentials and check reconnection after a restart. The fallback AP should disappear once connected.
+- [ ] HA discovers the device through ESPHome; manual addition using IP:6053 also works.
+- [ ] One measurement entity, **Wind Speed**, with unit **km/h**, device class `wind_speed`, state class `measurement`; no blind controls.
+- [ ] Smooth rotation produces intermediate readings, not only multiples of 2.4 km/h. A stationary sensor settles at zero.
+- [ ] About 5 seconds after the last pulse, the reading becomes zero, with no false spikes while stationary.
+- [ ] If an open-collector pulse generator is available: 1 Hz → 2.4 km/h, 10 Hz → 24.0 km/h, 20 Hz → 48.0 km/h. Allow several periods to settle. GPIO uses 3.3 V; never apply 5 V. Hand-spinning is not a precise calibration reference.
+- [ ] Router outage and recovery: the device reconnects and HA readings resume.
+- [ ] OTA using `.ota.bin` as described in the README succeeds, preserving Wi-Fi and entity identity. Check restart and measurement afterward.
+- [ ] Two simultaneous sensors have different MAC-suffixed names and separate entities, if a second board is available.
+- [ ] At least 24 hours of operation without unexpected reboots or false pulses when stationary.
 
-- [ ] Vyřešit licenci k softwaru a zvlášť k 3D modelu, doplnit BOM, fotografie a montáž.
-- [ ] Zaznamenat výsledky hardwarových testů a limity kalibrace / vlivu umístění na balkoně.
-- [ ] Rozhodnout zabezpečení API, OTA a fallback AP pro distribuovaný firmware.
-- [ ] Teprve na výslovný pokyn změnit viditelnost repozitáře a zapnout veřejný HTTPS hosting instalátoru.
-- [ ] Potom doplnit veřejný `dashboard_import` pro ESPHome Device Builder a otestovat převzetí konfigurace.
+## Before publication
 
-| Datum / build | Test | Výsledek | Poznámka |
+- [ ] Choose the software license and a separate 3D model license; add BOM, photos and assembly instructions.
+- [ ] Record physical test results, calibration limits and balcony placement effects.
+- [ ] Decide the distributed firmware’s API, OTA and fallback AP security policy.
+- [ ] Change repository visibility and enable public HTTPS hosting only on explicit instruction.
+- [ ] Then add public `dashboard_import` for ESPHome Device Builder and test configuration adoption.
+
+| Date / build | Test | Result | Notes |
 | --- | --- | --- | --- |
 | | | | |
