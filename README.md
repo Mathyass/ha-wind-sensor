@@ -29,6 +29,8 @@ The contact has no polarity and needs no supply voltage. The firmware enables th
 
 ## Quick start: private home test
 
+The final public entry point will be **https://mathyass.github.io/ha-wind-sensor/**. While the repository is private, use the local installer package:
+
 1. Sign in to GitHub, open [Releases](https://github.com/Mathyass/ha-wind-sensor/releases) and download `ha-wind-sensor-<version>-installer.zip`. Alternatively, open a successful [Actions](https://github.com/Mathyass/ha-wind-sensor/actions) run and download the `ha-wind-sensor-installer` artifact. Extract the artifact, then extract the installer ZIP inside it.
 2. Extract the **entire** installer ZIP. Open a terminal in that folder and run:
 
@@ -57,9 +59,11 @@ If flashing fails, hold **BOOT**, briefly press **RESET**, release BOOT and sele
 
 Five seconds without a pulse means zero. Intervals longer than 5 seconds (below approximately 0.48 km/h under this calibration) cannot produce a continuous low-speed reading with this timeout. Zero cannot distinguish still air from a disconnected wire. Real wind accuracy needs to be checked for the sensor and mounting location; balconies can significantly distort airflow.
 
-## OTA updates
+## Updates and ESPHome Device Builder
 
-ESPHome OTA listens on port **3232**. Use **`firmware/ha-wind-sensor.ota.bin`** for updates, never the factory image. OTA preserves saved Wi-Fi and the MAC-based device identity. Updates are manual; this project does not add an update entity to HA.
+Published firmware checks the HTTPS manifest on GitHub Pages every six hours. When a newer stable release is available, Home Assistant exposes **Firmware Update** in the device’s configuration section. Read the linked release notes, then install it from HA. The manifest includes the OTA image MD5 and ESPHome validates HTTPS certificates. This feature becomes active when the repository and Pages site are public.
+
+ESPHome’s native OTA also listens on port **3232**. Use **`firmware/ha-wind-sensor.ota.bin`** for manual updates, never the factory image. Both update paths preserve saved Wi-Fi and the MAC-based device identity.
 
 In a local clone, prepare the environment described below. Then upload the `.ota.bin` from the extracted release ZIP, replacing both the IP and path with your own:
 
@@ -67,7 +71,9 @@ In a local clone, prepare the environment described below. Then upload the `.ota
 esphome upload esphome/wind-sensor.yaml --device 192.168.1.123 --file /path/to/firmware/ha-wind-sensor.ota.bin
 ```
 
-To build and upload a new version from source, use `esphome -s firmware_version "$(cat VERSION)" run esphome/wind-sensor.yaml --device 192.168.1.123`. Private release downloads require GitHub sign-in; the device does not fetch firmware from GitHub itself.
+To build and upload a new version from source, use `esphome -s firmware_version "$(cat VERSION)" run esphome/wind-sensor.yaml --device 192.168.1.123`. Private release downloads require GitHub sign-in; managed update checks will therefore fail harmlessly until publication.
+
+After publication, ESPHome Device Builder discovers the device and offers **Take control**. The imported local YAML references this repository as a remote package, so the owner can customize substitutions and install future builds wirelessly. The source repository must remain public for package refreshes.
 
 ## Local development and layout
 
@@ -77,7 +83,7 @@ esphome/packages/wind-sensor.yaml  reusable device configuration
 installer/                        English/Czech web UI and manifest template
 scripts/build.py                  validation, compilation and packaging
 scripts/package.py                factory + OTA + manifest + checksums
-.github/workflows/build.yml        builds on main/PR; releases on v* tags
+.github/workflows/build.yml        builds, releases and public Pages deployment
 docs/test-checklist.md             hardware tests and publication checklist
 VERSION                           version for firmware and manifest
 ```
@@ -92,7 +98,7 @@ python scripts/build.py
 python dist/installer/serve.py
 ```
 
-On Windows, activate `.venv\Scripts\activate`. ESP-IDF downloads the required toolchain on the first build. CI uses Ubuntu 24.04. `scripts/build.py` passes `VERSION` into ESPHome; compiling the YAML directly without that substitution labels the firmware `dev`.
+On Windows, activate `.venv\Scripts\activate`. ESP-IDF downloads the required toolchain on the first build. CI uses Ubuntu 24.04. `scripts/build.py` passes `VERSION` into ESPHome; the YAML default must match `VERSION` for Device Builder imports.
 
 `dist/installer/` contains the ready-to-use website, **ESPHome’s merged factory image at offset 0**, an OTA image, build metadata and SHA-256 checksums. The same content is packaged in `dist/ha-wind-sensor-<version>-installer.zip`. Binaries, secrets and local configurations are not committed. The source `installer/manifest.json` is a template; the source installer folder has no firmware yet. The page detects a missing binary and does not offer installation.
 
@@ -102,11 +108,11 @@ Pushes to `main`, pull requests and manual **Run workflow** runs validate, compi
 
 ```sh
 # After updating VERSION, committing and verifying the build:
-git tag v0.1.0-beta.1
-git push origin v0.1.0-beta.1
+git tag v0.1.0-beta.2
+git push origin v0.1.0-beta.2
 ```
 
-Everything remains accessible only to people with access to the private repository. The workflow does not enable GitHub Pages, upload firmware to public hosting or change repository visibility. No GitHub token is used in the browser: it loads the manifest and firmware from the extracted package on localhost. Loading ESP Web Tools from its CDN requires internet access.
+While the repository is private, everything remains accessible only to collaborators and the Pages deployment is skipped. Once the repository is public and Pages is configured for GitHub Actions, each stable version tag (without a prerelease suffix) publishes its release first, then deploys the English/Czech installer, manifest and firmware to the stable HTTPS address. Beta tags remain private testing artifacts and never replace the public installer. The workflow never changes repository visibility. Loading ESP Web Tools from its CDN requires internet access.
 
 ## Test firmware security
 
@@ -129,7 +135,7 @@ wifi:
 
 Store the values in ignored `esphome/secrets.yaml`. The API key is 32 random bytes encoded as base64; generate it with `openssl rand -base64 32`. The AP password must be 8–64 characters. Install the first secured build over USB, then supply the API key to HA and use the matching local YAML for subsequent OTA updates. Returning to the generic image removes these protections. Never include local configurations or secrets in shared builds.
 
-HA discovery through mDNS and adding the API device work without adopting the source configuration. `dashboard_import` is intentionally omitted while the repository is private, because anonymous Device Builder imports would fail. Use the local clone/package for your own changes.
+HA discovery through mDNS works independently of source adoption. `dashboard_import` is already embedded in the beta firmware, but Device Builder can fetch it only after this repository becomes public. Until then, use the local clone/package for changes.
 
 ## References and next phase
 
@@ -137,6 +143,7 @@ HA discovery through mDNS and adding the API device work without adopting the so
 - [ESPHome Improv Serial](https://esphome.io/components/improv_serial/) and [USB logger](https://esphome.io/components/logger/)
 - [ESP Web Tools: manifest and installer](https://esphome.github.io/esp-web-tools/)
 - [ESPHome OTA](https://esphome.io/components/ota/esphome/)
+- [ESPHome managed HTTP updates](https://esphome.io/components/update/http_request/)
 - [Seeed XIAO ESP32-S3](https://wiki.seeedstudio.com/xiao_esp32s3_getting_started/)
 
-Publication, licensing, public HTTPS hosting, the 3D model, photos and the MakerWorld page follow after home testing. No public open-source license has been granted yet.
+The public installer pipeline, managed updates and Device Builder adoption are prepared but remain inactive while the repository is private. Licensing, the 3D model, photos and the MakerWorld page follow after home testing. No public open-source license has been granted yet.

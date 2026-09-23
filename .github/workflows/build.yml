@@ -45,6 +45,11 @@ jobs:
           path: dist/ha-wind-sensor-*-installer.zip
           if-no-files-found: error
           retention-days: 30
+      - name: Prepare public installer for GitHub Pages
+        if: github.event.repository.visibility == 'public' && startsWith(github.ref, 'refs/tags/v') && !contains(github.ref_name, '-')
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist/installer
 
   release:
     if: startsWith(github.ref, 'refs/tags/v')
@@ -57,7 +62,7 @@ jobs:
         with:
           name: ha-wind-sensor-installer
           path: artifacts
-      - name: Publish private test release
+      - name: Publish firmware release
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
@@ -66,7 +71,28 @@ jobs:
           if gh release view "$TAG" >/dev/null 2>&1; then
             gh release upload "$TAG" artifacts/*.zip --clobber
           else
-            gh release create "$TAG" artifacts/*.zip --verify-tag --prerelease \
-              --title "HA Wind Sensor $TAG" \
-              --notes "Test firmware for XIAO ESP32-S3. Download and extract the installer ZIP, then run python3 serve.py. English is the default language; Czech is available as an alternative. Instructions and the test checklist are included. USB flashing, Wi-Fi provisioning and OTA still require testing on physical hardware."
+            if [[ "$TAG" == *-* ]]; then
+              gh release create "$TAG" artifacts/*.zip --verify-tag --prerelease \
+                --title "HA Wind Sensor $TAG" \
+                --notes "Test firmware for XIAO ESP32-S3. English is the default language; Czech is available as an alternative. Physical hardware testing is still required."
+            else
+              gh release create "$TAG" artifacts/*.zip --verify-tag --latest \
+                --title "HA Wind Sensor $TAG" \
+                --generate-notes
+            fi
           fi
+
+  pages:
+    if: github.event.repository.visibility == 'public' && startsWith(github.ref, 'refs/tags/v') && !contains(github.ref_name, '-')
+    needs: [build, release]
+    runs-on: ubuntu-24.04
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy public installer
+        id: deployment
+        uses: actions/deploy-pages@v4

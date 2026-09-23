@@ -2,7 +2,8 @@
 substitutions:
   name: ha-wind-sensor
   friendly_name: HA Wind Sensor
-  firmware_version: dev
+  firmware_version: 0.1.0-beta.2
+  update_manifest_url: https://mathyass.github.io/ha-wind-sensor/manifest.json
 
 packages:
   wind_sensor: !include packages/wind-sensor.yaml

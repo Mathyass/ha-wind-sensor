@@ -52,6 +52,12 @@
     <a href="https://my.home-assistant.io/redirect/config_flow_start/?domain=esphome" target="_blank" rel="noopener noreferrer">Otevřít přidání ESPHome</a>
   </section>
   <section>
+    <h2>4. Aktualizace a plné převzetí</h2>
+    <p>Stabilní verze se v Home Assistantu objeví jako <strong>Firmware Update</strong>. Přečti si poznámky k vydání a potom aktualizaci spusť ze stránky zařízení.</p>
+    <p>Pro vlastní úpravy otevři ESPHome Device Builder a u nalezeného HA Wind Sensor zvol <strong>Take control</strong>. Builder vytvoří vlastní konfiguraci a další buildy půjdou nahrávat bezdrátově.</p>
+    <p class="muted">Veřejné odkazy pro aktualizace a převzetí začnou fungovat po zveřejnění tohoto beta repozitáře a instalátoru.</p>
+  </section>
+  <section>
     <h2>Když připojení nevyjde</h2>
     <ul>
       <li><strong>USB není v seznamu:</strong> zkus jiný datový kabel. Podrž BOOT, krátce stiskni RESET a uvolni BOOT. Po flashování případně stiskni RESET.</li>
@@ -60,7 +66,7 @@
     </ul>
     <p class="muted">Testovací firmware má otevřený fallback AP, API bez šifrování a OTA bez hesla. Používej ho v důvěryhodné síti. Postup vlastního zabezpečení je v README.</p>
   </section>
-  <footer>HA Wind Sensor · <span id="version">testovací firmware</span> · Wi-Fi údaje zadáváš přímo zařízení přes Improv nebo jeho captive portal. Webová knihovna se načítá z unpkg.com; připojení k internetu je potřeba.</footer>
+  <footer>HA Wind Sensor · <span id="version">testovací firmware</span> · Wi-Fi údaje zadáváš přímo zařízení přes Improv nebo jeho captive portal. Aktualizace firmware používají veřejný HTTPS manifest. Webová knihovna se načítá z unpkg.com; připojení k internetu je potřeba.</footer>
 </main>
 <script type="module" src="installer.js"></script>
 </body>

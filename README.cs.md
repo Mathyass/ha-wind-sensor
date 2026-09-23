@@ -28,6 +28,8 @@ Kontakt nemá polaritu a nepotřebuje napájení. Firmware zapíná interní pul
 
 ## Nejrychlejší domácí instalace
 
+Finální veřejná adresa bude **https://mathyass.github.io/ha-wind-sensor/**. Dokud je repozitář soukromý, použij lokální instalační balíček:
+
 1. Po přihlášení na GitHub otevři [Releases](https://github.com/Mathyass/ha-wind-sensor/releases) a stáhni `ha-wind-sensor-<verze>-installer.zip`. Alternativně v [Actions](https://github.com/Mathyass/ha-wind-sensor/actions) otevři úspěšný build a stáhni artifact `ha-wind-sensor-installer`; v něm rozbal ještě vlastní instalační ZIP.
 2. Rozbal celý instalační ZIP. Otevři terminál v rozbalené složce a spusť:
 
@@ -56,9 +58,11 @@ Pokud zařízení nejde flashnout: podrž **BOOT**, krátce stiskni **RESET**, u
 
 Pět sekund bez pulzu znamená nulu. Při intervalech nad 5 s (méně než přibližně 0,48 km/h podle zadané kalibrace) nemůže toto nastavení poskytovat souvislé nízké hodnoty. Timeout nerozliší bezvětří od přerušeného vodiče. Přesnost skutečného větru je nutné ověřit pro senzor a umístění; balkon může proudění významně ovlivnit.
 
-## OTA aktualizace
+## Aktualizace a ESPHome Device Builder
 
-OTA je dostupná přes ESPHome na portu **3232**. Pro update použij **`firmware/ha-wind-sensor.ota.bin`**, nikdy factory image. OTA nepřepisuje uloženou Wi-Fi a MAC identitu. Aktualizace nejsou automatické a tento projekt nepřidává další update entitu do HA.
+Zveřejněný firmware kontroluje každých šest hodin HTTPS manifest na GitHub Pages. Když je dostupná novější stabilní verze, Home Assistant ukáže v konfigurační části zařízení entitu **Firmware Update**. Přečti si odkazované poznámky k vydání a aktualizaci spusť z HA. Manifest obsahuje MD5 OTA obrazu a ESPHome ověřuje HTTPS certifikát. Funkce začne pracovat po zveřejnění repozitáře a Pages webu.
+
+Nativní ESPHome OTA je zároveň dostupná na portu **3232**. Pro ruční update použij **`firmware/ha-wind-sensor.ota.bin`**, nikdy factory image. Obě cesty zachovají uloženou Wi-Fi a MAC identitu.
 
 V lokálním klonu repozitáře připrav prostředí podle následující sekce. Pak nahraj `.ota.bin` z rozbaleného release ZIPu (nahraď IP i cestu skutečnými hodnotami):
 
@@ -66,7 +70,9 @@ V lokálním klonu repozitáře připrav prostředí podle následující sekce.
 esphome upload esphome/wind-sensor.yaml --device 192.168.1.123 --file /cesta/k/firmware/ha-wind-sensor.ota.bin
 ```
 
-Pro vlastní nově sestavený firmware lze použít `esphome -s firmware_version "$(cat VERSION)" run esphome/wind-sensor.yaml --device 192.168.1.123`. Dokud je repo private, přístup k release vyžaduje přihlášení; zařízení samo firmware z GitHubu nestahuje.
+Pro vlastní nově sestavený firmware lze použít `esphome -s firmware_version "$(cat VERSION)" run esphome/wind-sensor.yaml --device 192.168.1.123`. Dokud je repo private, přístup k release vyžaduje přihlášení a spravovaná kontrola aktualizací neškodně selže.
+
+Po zveřejnění ESPHome Device Builder zařízení objeví a nabídne **Take control**. Importovaný lokální YAML odkazuje na tento repozitář jako vzdálený balíček, takže vlastník může měnit substitutions a další buildy instalovat bezdrátově. Pro aktualizaci balíčku musí repozitář zůstat veřejný.
 
 ## Lokální vývoj a struktura
 
@@ -76,7 +82,7 @@ esphome/packages/wind-sensor.yaml  znovupoužitelná konfigurace
 installer/                        web a šablona manifestu
 scripts/build.py                  validace, kompilace, balení
 scripts/package.py                factory + OTA + manifest + checksumy
-.github/workflows/build.yml        build na main/PR, release na v* tagu
+.github/workflows/build.yml        build, release a veřejné nasazení Pages
 docs/test-checklist.md             domácí testy a podmínky zveřejnění
 VERSION                           verze použitá v buildu i manifestu
 ```
@@ -91,7 +97,7 @@ python scripts/build.py
 python dist/installer/serve.py
 ```
 
-Na Windows aktivuj `.venv\Scripts\activate`; kompilátor ESP-IDF si při prvním sestavení stáhne potřebné nástroje. CI používá Ubuntu 24.04. `scripts/build.py` dodá verzi z `VERSION`; při přímém sestavení YAML bez této substituce se firmware označí jako `dev`.
+Na Windows aktivuj `.venv\Scripts\activate`; kompilátor ESP-IDF si při prvním sestavení stáhne potřebné nástroje. CI používá Ubuntu 24.04. `scripts/build.py` dodá verzi z `VERSION`; výchozí verze v YAML musí s `VERSION` souhlasit kvůli importu do Device Builderu.
 
 Výstup `dist/installer/` obsahuje připravený web, **factory image sloučenou ESPHome na offset 0**, OTA image, build metadata a SHA-256 kontrolní součty. Stejný obsah je v `dist/ha-wind-sensor-<verze>-installer.zip`. Binární soubory, secrets a lokální konfigurace se necommitují. Zdrojový `installer/manifest.json` je šablona; samotný zdrojový adresář ještě neobsahuje firmware. Web chybějící binární soubor pozná a instalaci nenabídne.
 
@@ -101,11 +107,11 @@ Push na `main`, pull request nebo ruční **Run workflow** provede kontrolu, kom
 
 ```sh
 # Po úpravě VERSION, commitu a úspěšném buildu:
-git tag v0.1.0-beta.1
-git push origin v0.1.0-beta.1
+git tag v0.1.0-beta.2
+git push origin v0.1.0-beta.2
 ```
 
-Vše zůstává přístupné pouze lidem s přístupem k private repozitáři. Workflow neaktivuje GitHub Pages, neposílá firmware na veřejný hosting a nemění viditelnost repozitáře. Prohlížeč nepotřebuje GitHub token: firmware i manifest načítá z rozbaleného balíčku na localhost. Načtení knihovny ESP Web Tools z CDN vyžaduje internet.
+Dokud je repozitář soukromý, vše zůstává dostupné jen spolupracovníkům a nasazení Pages se přeskočí. Po zveřejnění repozitáře a nastavení Pages na GitHub Actions každý stabilní verzovací tag (bez prerelease suffixu) nejprve vytvoří release a potom nasadí anglický/český instalátor, manifest a firmware na stabilní HTTPS adresu. Beta tagy zůstávají testovacími artefakty a veřejný instalátor nepřepisují. Workflow nikdy nemění viditelnost repozitáře. Načtení ESP Web Tools z CDN vyžaduje internet.
 
 ## Zabezpečení testovacího firmware
 
@@ -128,7 +134,7 @@ wifi:
 
 Hodnoty ulož do ignorovaného `esphome/secrets.yaml`. API klíč je base64 kódovaných 32 náhodných bytů; vygeneruješ ho `openssl rand -base64 32`. AP heslo musí mít 8–64 znaků. První zabezpečený build nahraj přes USB; potom v HA nastav nový API klíč a pro další OTA používej odpovídající lokální YAML. Návrat k univerzálnímu firmware tato zabezpečení odstraní. Lokální soubory nikdy nepřidávej do sdíleného buildu.
 
-Home Assistant discovery přes mDNS a přidání API zařízení fungují bez převzetí zdrojové konfigurace. `dashboard_import` pro ESPHome Device Builder zatím nezapínáme, protože anonymní import z private repozitáře by selhal. Pro vlastní změny používej lokální klon/package.
+Home Assistant discovery přes mDNS funguje nezávisle na převzetí zdrojové konfigurace. `dashboard_import` je už v beta firmware, ale Device Builder ho dokáže stáhnout až po zveřejnění repozitáře. Do té doby používej pro změny lokální klon/package.
 
 ## Zdroje a další fáze
 
@@ -136,6 +142,7 @@ Home Assistant discovery přes mDNS a přidání API zařízení fungují bez p�
 - [ESPHome Improv Serial](https://esphome.io/components/improv_serial/) a [USB logger](https://esphome.io/components/logger/)
 - [ESP Web Tools — manifest a instalátor](https://esphome.github.io/esp-web-tools/)
 - [ESPHome OTA](https://esphome.io/components/ota/esphome/)
+- [ESPHome spravované HTTP aktualizace](https://esphome.io/components/update/http_request/)
 - [Seeed XIAO ESP32-S3](https://wiki.seeedstudio.com/xiao_esp32s3_getting_started/)
 
-Zveřejnění, licence, veřejný HTTPS instalátor, 3D model, fotografie a MakerWorld stránka jsou až další fáze po domácích testech. Zatím není udělena veřejná open-source licence.
+Veřejný instalační řetězec, spravované aktualizace a převzetí do Device Builderu jsou připravené, ale dokud je repozitář soukromý, zůstávají neaktivní. Licence, 3D model, fotografie a MakerWorld stránka přijdou po domácích testech. Zatím není udělena veřejná open-source licence.

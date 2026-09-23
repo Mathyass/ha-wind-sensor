@@ -9,7 +9,13 @@
       "chipFamily": "ESP32-S3",
       "parts": [
         { "path": "firmware/ha-wind-sensor.factory.bin", "offset": 0 }
-      ]
+      ],
+      "ota": {
+        "md5": "00000000000000000000000000000000",
+        "path": "firmware/ha-wind-sensor.ota.bin",
+        "release_url": "https://github.com/Mathyass/ha-wind-sensor/releases",
+        "summary": "HA Wind Sensor firmware update"
+      }
     }
   ]
 }

@@ -13,6 +13,9 @@ def package():
     version = (ROOT / "VERSION").read_text().strip()
     if not re.fullmatch(r"\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?", version):
         raise ValueError("VERSION must be a semantic version")
+    entry_yaml = (ROOT / "esphome/wind-sensor.yaml").read_text()
+    if f"firmware_version: {version}\n" not in entry_yaml:
+        raise RuntimeError("The YAML default firmware_version must match VERSION")
     build = ROOT / "esphome/.esphome/build/ha-wind-sensor"
     binaries = {}
     for kind in ("factory", "ota"):
@@ -43,6 +46,15 @@ def package():
         shutil.copy2(source_path, site / "firmware" / f"ha-wind-sensor.{kind}.bin")
     manifest = json.loads((site / "manifest.json").read_text())
     manifest["version"] = version
+    manifest["builds"][0]["ota"]["md5"] = hashlib.md5(
+        (site / "firmware/ha-wind-sensor.ota.bin").read_bytes(), usedforsecurity=False
+    ).hexdigest()
+    manifest["builds"][0]["ota"]["release_url"] = (
+        f"https://github.com/Mathyass/ha-wind-sensor/releases/tag/v{version}"
+    )
+    manifest["builds"][0]["ota"]["summary"] = (
+        f"HA Wind Sensor {version} — see the release notes before updating."
+    )
     (site / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")
     shutil.copy2(ROOT / "README.md", site / "README.md")
     shutil.copy2(ROOT / "README.cs.md", site / "README.cs.md")

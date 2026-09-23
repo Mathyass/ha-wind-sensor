@@ -24,8 +24,10 @@ async function prepareInstaller() {
     const response = await fetch('manifest.json', { cache: 'no-store' });
     if (!response.ok) throw new Error(copy.manifest);
     const manifest = await response.json();
-    const part = manifest.builds.find(build => build.chipFamily === 'ESP32-S3')?.parts[0];
+    const build = manifest.builds.find(build => build.chipFamily === 'ESP32-S3');
+    const part = build?.parts[0];
     if (!part || part.offset !== 0) throw new Error(copy.invalid);
+    if (!build.ota?.path || !/^[a-f0-9]{32}$/.test(build.ota.md5)) throw new Error(copy.invalid);
     const firmware = await fetch(new URL(part.path, response.url), { method: 'HEAD', cache: 'no-store' });
     if (!firmware.ok) throw new Error(copy.firmware);
     await import('https://unpkg.com/esp-web-tools@10.4.0/dist/web/install-button.js?module');

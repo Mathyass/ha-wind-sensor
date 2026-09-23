@@ -52,6 +52,12 @@
     <a href="https://my.home-assistant.io/redirect/config_flow_start/?domain=esphome" target="_blank" rel="noopener noreferrer">Add an ESPHome device</a>
   </section>
   <section>
+    <h2>4. Updates and full control</h2>
+    <p>Stable releases appear in Home Assistant as <strong>Firmware Update</strong>. Review the release notes, then install the update from the device page.</p>
+    <p>For custom changes, open ESPHome Device Builder and choose <strong>Take control</strong> on the discovered HA Wind Sensor. The Builder creates your own configuration and future builds can be installed wirelessly.</p>
+    <p class="muted">These public update and adoption links become active when this beta repository and installer are published.</p>
+  </section>
+  <section>
     <h2>Need a hand connecting?</h2>
     <ul>
       <li><strong>No USB device listed?</strong> Try another data cable. Hold BOOT, briefly press RESET, then release BOOT. You may need to press RESET after flashing.</li>
@@ -60,7 +66,7 @@
     </ul>
     <p class="muted">This test firmware has an open fallback access point, an unencrypted API and OTA without a password. Use a trusted network. See the README for per-device security settings.</p>
   </section>
-  <footer>HA Wind Sensor · <span id="version">test firmware</span> · Wi-Fi credentials go directly to your device through Improv or its captive portal. The web library loads from unpkg.com; internet access is required.</footer>
+  <footer>HA Wind Sensor · <span id="version">test firmware</span> · Wi-Fi credentials go directly to your device through Improv or its captive portal. Firmware updates use the public HTTPS manifest. The web library loads from unpkg.com; internet access is required.</footer>
 </main>
 <script type="module" src="installer.js"></script>
 </body>
