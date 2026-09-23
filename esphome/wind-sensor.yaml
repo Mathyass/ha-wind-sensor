@@ -1,0 +1,8 @@
+# Generic factory image. Build scripts replace firmware_version with VERSION.
+substitutions:
+  name: ha-wind-sensor
+  friendly_name: HA Wind Sensor
+  firmware_version: dev
+
+packages:
+  wind_sensor: !include packages/wind-sensor.yaml

@@ -1,0 +1,10 @@
+.DS_Store
+.venv/
+__pycache__/
+*.pyc
+.esphome/
+secrets.yaml
+secrets.*.yaml
+*.local.yaml
+dist/
+installer/firmware/*.bin

@@ -1,0 +1,72 @@
+name: Build and release firmware
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: firmware-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+          cache: pip
+      - name: Check release tag
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          TAG: ${{ github.ref_name }}
+        run: test "$TAG" = "v$(cat VERSION)"
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake ninja-build libusb-1.0-0
+          python -m pip install -r requirements.txt
+      - name: Validate, compile and package
+        run: python scripts/build.py
+      - name: Check packaged files
+        working-directory: dist/installer
+        run: sha256sum --check SHA256SUMS
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ha-wind-sensor-installer
+          path: dist/ha-wind-sensor-*-installer.zip
+          if-no-files-found: error
+          retention-days: 30
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: build
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: ha-wind-sensor-installer
+          path: artifacts
+      - name: Publish private test release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" artifacts/*.zip --clobber
+          else
+            gh release create "$TAG" artifacts/*.zip --verify-tag --prerelease \
+              --title "HA Wind Sensor $TAG" \
+              --notes "Testovací firmware pro XIAO ESP32-S3. Stáhněte instalační ZIP, rozbalte jej a spusťte python3 serve.py. Postup a checklist jsou uvnitř balíčku. USB flashování, Wi-Fi provisioning a OTA je nutné ověřit na skutečném zařízení."
+          fi

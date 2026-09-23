@@ -1,0 +1,59 @@
+esphome:
+  name: ${name}
+  friendly_name: ${friendly_name}
+  name_add_mac_suffix: true
+  min_version: 2026.9.0
+  project:
+    name: mathyass.ha-wind-sensor
+    version: ${firmware_version}
+
+esp32:
+  board: seeed_xiao_esp32s3
+  variant: esp32s3
+  flash_size: 8MB
+  framework:
+    type: esp-idf
+
+# Native USB-C on XIAO; Improv uses the same port as the logger.
+logger:
+  hardware_uart: USB_SERIAL_JTAG
+  baud_rate: 115200
+
+api:
+  # Stay available for provisioning/testing even when HA is not connected.
+  reboot_timeout: 0s
+
+mdns:
+
+ota:
+  - platform: esphome
+    id: ota_esphome
+
+wifi:
+  # Credentials are provisioned by the owner and stored on the device.
+  ap:
+    ap_timeout: 1min
+
+captive_portal:
+
+improv_serial:
+
+sensor:
+  - platform: pulse_meter
+    id: wind_speed
+    name: Wind Speed
+    pin:
+      number: GPIO4 # XIAO pin D3, not D4
+      mode:
+        input: true
+        pullup: true
+    internal_filter: 5ms
+    internal_filter_mode: EDGE
+    timeout: 5s
+    unit_of_measurement: km/h
+    accuracy_decimals: 1
+    device_class: wind_speed
+    state_class: measurement
+    filters:
+      # pulse_meter outputs pulses/min: 2.4 / 60 = 0.04.
+      - multiply: 0.04
